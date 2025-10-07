@@ -1,25 +1,40 @@
 import csv
+import json
 
-def rank_lawyers(input_file):
+def rank_lawyers(input_file, config_file):
     """
-    Ranks lawyers based on the length of their description from a CSV file.
+    Ranks lawyers based on weighted criteria from a CSV file and a JSON config file.
     """
     try:
+        with open(config_file, 'r', encoding='utf-8') as f:
+            weights = json.load(f)
+
         with open(input_file, 'r', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             lawyers = list(reader)
 
-            # Convert description_length to integer for sorting
             for lawyer in lawyers:
-                lawyer['description_length'] = int(lawyer['description_length'])
+                score = 0
+                for column, weight in weights.items():
+                    try:
+                        # Ensure the column exists and the value is a number
+                        if column in lawyer and lawyer[column]:
+                            score += float(lawyer[column]) * weight
+                    except (ValueError, TypeError):
+                        # Handle cases where conversion to float fails
+                        pass
+                lawyer['score'] = score
 
-            # Sort the lawyers by description_length in descending order
-            ranked_lawyers = sorted(lawyers, key=lambda x: x['description_length'], reverse=True)
+            # Sort the lawyers by score in descending order
+            ranked_lawyers = sorted(lawyers, key=lambda x: x['score'], reverse=True)
 
             return ranked_lawyers
 
-    except FileNotFoundError:
-        print(f"Error: The file {input_file} was not found.")
+    except FileNotFoundError as e:
+        print(f"Error: The file {e.filename} was not found.")
+        return []
+    except json.JSONDecodeError:
+        print(f"Error: Could not decode JSON from {config_file}.")
         return []
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -27,8 +42,8 @@ def rank_lawyers(input_file):
 
 if __name__ == '__main__':
     # For testing the ranker directly
-    ranked_list = rank_lawyers('lawyers.csv')
+    ranked_list = rank_lawyers('lawyer_data.csv', 'config.json')
     if ranked_list:
-        print("Top 10 Ranked Lawyers:")
-        for i, lawyer in enumerate(ranked_list[:10]):
-            print(f"{i+1}. {lawyer['name']} (Description Length: {lawyer['description_length']})")
+        print("Ranked Lawyers:")
+        for i, lawyer in enumerate(ranked_list):
+            print(f"{i+1}. {lawyer['Name']} (Score: {lawyer.get('score', 'N/A')})")
