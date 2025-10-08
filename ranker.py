@@ -14,6 +14,10 @@ def rank_lawyers(input_file, config_file):
             lawyers = list(reader)
 
             for lawyer in lawyers:
+                # Remove None keys that may exist due to malformed CSV data
+                if None in lawyer:
+                    del lawyer[None]
+                
                 score = 0
                 for column, weight in weights.items():
                     try:
@@ -26,7 +30,8 @@ def rank_lawyers(input_file, config_file):
                 lawyer['score'] = score
 
             # Sort the lawyers by score in descending order
-            ranked_lawyers = sorted(lawyers, key=lambda x: x['score'], reverse=True)
+            # Ensure score is always a number for comparison
+            ranked_lawyers = sorted(lawyers, key=lambda x: x.get('score', 0), reverse=True)
 
             return ranked_lawyers
 
