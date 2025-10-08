@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 import json
 import os
@@ -33,7 +33,12 @@ def get_lawyers():
         if ranked_lawyers is None or len(ranked_lawyers) == 0:
             return jsonify([]), 200
         
-        return jsonify(ranked_lawyers), 200
+        # Use Response with json.dumps to avoid Flask jsonify issues with large data
+        return Response(
+            json.dumps(ranked_lawyers),
+            mimetype='application/json',
+            status=200
+        )
         
     except Exception as e:
         return jsonify({
