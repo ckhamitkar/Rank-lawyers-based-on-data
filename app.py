@@ -70,9 +70,9 @@ def update_config():
     Expects a JSON object with the new weights.
     """
     try:
-        new_config = request.get_json()
+        new_config = request.get_json(force=True, silent=True)
         
-        if not new_config:
+        if not new_config or not isinstance(new_config, dict):
             return jsonify({
                 'success': False,
                 'message': 'No data provided'

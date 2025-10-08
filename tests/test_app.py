@@ -1,6 +1,7 @@
 import pytest
 import os
 import csv
+import json
 from scraper import scrape_lawyers
 from ranker import rank_lawyers
 
@@ -58,6 +59,8 @@ def test_ranker_sorts_correctly():
     """
     # Create a dummy CSV file for testing
     dummy_csv_file = 'test_lawyers.csv'
+    dummy_config_file = 'test_config.json'
+    
     with open(dummy_csv_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['name', 'location', 'practice_areas', 'description_length']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -66,8 +69,12 @@ def test_ranker_sorts_correctly():
         writer.writerow({'name': 'Lawyer B', 'location': 'City B', 'practice_areas': 'Area B', 'description_length': 200})
         writer.writerow({'name': 'Lawyer C', 'location': 'City C', 'practice_areas': 'Area C', 'description_length': 50})
 
+    # Create a dummy config file
+    with open(dummy_config_file, 'w') as f:
+        json.dump({'description_length': 1}, f)
+
     # Run the ranker
-    ranked_list = rank_lawyers(dummy_csv_file)
+    ranked_list = rank_lawyers(dummy_csv_file, dummy_config_file)
 
     # Check that the list is sorted correctly
     assert len(ranked_list) == 3
@@ -75,5 +82,6 @@ def test_ranker_sorts_correctly():
     assert ranked_list[1]['name'] == 'Lawyer A'
     assert ranked_list[2]['name'] == 'Lawyer C'
 
-    # Clean up the dummy file
+    # Clean up the dummy files
     os.remove(dummy_csv_file)
+    os.remove(dummy_config_file)
