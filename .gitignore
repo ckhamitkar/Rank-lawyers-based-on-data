@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+venv/
+env/
+.env
+*.pyc
+lawyers.csv
+frontend/node_modules/
+dist/
+build/
