@@ -113,6 +113,13 @@ Filters: By state, by practice area, minimum review count, etc.
 
 Output formats: CSV, HTML, perhaps JSON or dashboards.
 
+Notes about the ranker behavior
+--------------------------------
+
+- The `rank_lawyers` function accepts an optional JSON `config_file` that specifies weights for numeric columns (for example: `{ "description_length": 1.0 }`).
+- If no config file is provided, or if the specified config file is missing or invalid, the ranker falls back to a sensible default weight set (by default it weights `description_length` by `1.0`). This makes it easy to call the ranker with just a CSV during testing or quick runs.
+
+
 ## Tests
 
 To run the tests:
@@ -121,3 +128,18 @@ To run the tests:
 
 
 The tests/ directory contains unit tests checking scraping correctness, ranking logic, data cleaning, etc. Ensure new modules/features include tests.
+
+
+Added tests
+-----------
+
+Two additional tests were added to verify the ranker's behavior:
+
+- `tests/test_ranker_extra.py::test_ranker_defaults_no_config` ensures that when no config file is provided the ranker uses the default weighting (preferring larger `description_length`).
+- `tests/test_ranker_extra.py::test_ranker_with_config_file` verifies that providing a JSON config file alters ranking according to the provided weights.
+
+Run the full test suite with:
+
+```powershell
+python -m pytest -q
+```
