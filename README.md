@@ -34,6 +34,8 @@ This project fetches, processes, and ranks lawyers (or law firms) based on data 
 - Support for filtering by geography, practice area, review count, etc.  
 - Output results in structured formats (HTML, CSV, etc.)  
 - Modular design to allow addition of new data sources or ranking criteria  
+- **REST API backend** for programmatic access to rankings and configuration
+- **Cross-platform mobile/web frontend** built with React Native (Expo) for iOS, Android, and Web
 
 ---
 
@@ -46,6 +48,8 @@ Here’s how this project is structured:
 | `scraper.py` | Contains modules/functions to scrape data from target sources (e.g. Justia, state-specific directories). |
 | `ranker.py` | Implements logic to score and rank lawyers based on scraped data. |
 | `main.py` | Orchestrates the workflow: scraping → ranking → output. |
+| `app.py` | **Flask REST API backend** providing endpoints for fetching lawyers and managing config. |
+| `frontend/` | **React Native (Expo) frontend** for cross-platform mobile and web application. |
 | `justia.html`, `justia_california.html` | Sample/raw HTML files or templates from one of the data sources. |
 | `requirements.txt` | Python dependencies. |
 | `tests/` | Unit tests to validate scraping and ranking logic. |
@@ -74,21 +78,77 @@ source env/bin/activate
 
 Here is how to run the tool:
 
-```python main.py
+### Command-Line Interface
 
+```bash
+python main.py
+```
 
 By default, this runs the full workflow: scrape data, process it, compute rankings, and produce output.
 
-You can also use/runs specific modules:
+You can also use/run specific modules:
 
 To scrape from a single source:
 
-```python scraper.py --source justia
+```bash
+python scraper.py --source justia
+```
 
+To rank using specific criteria:
 
-## To rank using specific criteria:
+```bash
+python ranker.py --weights review_score:0.5, case_volume:0.3, geography:0.2
+```
 
-```python ranker.py --weights review_score:0.5, case_volume:0.3, geography:0.2
+### REST API Backend
+
+Start the Flask API server:
+
+```bash
+python app.py
+```
+
+The API will be available at `http://localhost:5000` with the following endpoints:
+
+- `GET /lawyers` - Retrieve ranked lawyers
+- `GET /config` - Get current weight configuration
+- `PUT /config` - Update weight configuration
+
+Example API calls:
+
+```bash
+# Get ranked lawyers
+curl http://localhost:5000/lawyers
+
+# Get configuration
+curl http://localhost:5000/config
+
+# Update configuration
+curl -X PUT http://localhost:5000/config \
+  -H "Content-Type: application/json" \
+  -d '{"Chambers Rank": 2, "Years PE": 1.5}'
+```
+
+### Cross-Platform Frontend
+
+The project includes a React Native (Expo) frontend for iOS, Android, and Web.
+
+See the [Frontend README](frontend/README.md) for detailed setup and usage instructions.
+
+Quick start:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+This will open the Expo Developer Tools where you can run the app on:
+- iOS Simulator
+- Android Emulator
+- Web Browser
+- Physical Device (via Expo Go app)
+
 
 
 (Output format options, flags, etc., should be explained here.)
