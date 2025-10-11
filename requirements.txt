@@ -2,5 +2,9 @@ requests
 beautifulsoup4
 pytest
 pytest-mock
-flask
-flask-cors
+fastapi
+uvicorn
+requests
+beautifulsoup4
+pytest
+pytest-mock

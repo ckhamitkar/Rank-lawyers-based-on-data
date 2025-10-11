@@ -163,147 +163,33 @@ Filters: By state, by practice area, minimum review count, etc.
 
 Output formats: CSV, HTML, perhaps JSON or dashboards.
 
+Notes about the ranker behavior
+--------------------------------
+
+- The `rank_lawyers` function accepts an optional JSON `config_file` that specifies weights for numeric columns (for example: `{ "description_length": 1.0 }`).
+- If no config file is provided, or if the specified config file is missing or invalid, the ranker falls back to a sensible default weight set (by default it weights `description_length` by `1.0`). This makes it easy to call the ranker with just a CSV during testing or quick runs.
+
+
 ## Tests
 
-This project includes comprehensive automated tests for both backend and frontend.
+To run the tests:
 
-### Backend Tests (Python/pytest)
+```pytest
 
-The backend uses pytest for testing Flask API endpoints and core functionality.
 
-**Run all backend tests:**
-```bash
-pytest
+The tests/ directory contains unit tests checking scraping correctness, ranking logic, data cleaning, etc. Ensure new modules/features include tests.
+
+
+Added tests
+-----------
+
+Two additional tests were added to verify the ranker's behavior:
+
+- `tests/test_ranker_extra.py::test_ranker_defaults_no_config` ensures that when no config file is provided the ranker uses the default weighting (preferring larger `description_length`).
+- `tests/test_ranker_extra.py::test_ranker_with_config_file` verifies that providing a JSON config file alters ranking according to the provided weights.
+
+Run the full test suite with:
+
+```powershell
+python -m pytest -q
 ```
-
-**Run with verbose output:**
-```bash
-pytest -v
-```
-
-**Run specific test file:**
-```bash
-pytest tests/test_backend.py
-```
-
-**Run with coverage:**
-```bash
-pytest --cov=. --cov-report=html
-```
-
-**Backend Test Coverage:**
-- **API Endpoints:** Tests for `/lawyers` (GET), `/config` (GET/PUT), and `/health`
-  - Successful requests with correct status codes and data structure
-  - Error handling for missing files, invalid JSON, bad payloads
-- **Configuration Updates:** Tests that config changes affect lawyer rankings
-- **Edge Cases:** Empty files, invalid values, numeric validation
-- **Integration:** End-to-end tests of config update → ranking recalculation flow
-
-**Test Files:**
-- `tests/test_backend.py` - Comprehensive Flask API tests (17 tests)
-- `tests/test_ranker.py` - Ranker logic unit tests
-- `tests/test_app.py` - Application integration tests
-
-### Frontend Tests (JavaScript/Jest)
-
-The frontend uses Jest and React Native Testing Library for component and integration testing.
-
-**Setup (first time):**
-```bash
-cd frontend
-npm install
-```
-
-**Run all frontend tests:**
-```bash
-cd frontend
-npm test
-```
-
-**Run in watch mode (for development):**
-```bash
-cd frontend
-npm run test:watch
-```
-
-**Generate coverage report:**
-```bash
-cd frontend
-npm run test:coverage
-```
-
-**Frontend Test Coverage:**
-- **Component Tests:**
-  - `LawyerCard.test.js` - Lawyer card rendering, props, metrics display
-  - `WeightSlider.test.js` - Slider controls, value changes, boundaries
-- **Screen Tests:**
-  - `RankingsScreen.test.js` - Lawyer list display, loading states, error handling
-  - `ConfigScreen.test.js` - Config loading, weight adjustments, save functionality
-- **Integration Tests:**
-  - `integration.test.js` - Complete user flows with mocked APIs
-  - Loading lawyers → changing config → seeing updated rankings
-  - Error recovery and state management
-- **API Mocking:** All tests use mocked API requests to simulate backend responses
-
-**Test Files:**
-- `frontend/src/__tests__/LawyerCard.test.js`
-- `frontend/src/__tests__/WeightSlider.test.js`
-- `frontend/src/__tests__/RankingsScreen.test.js`
-- `frontend/src/__tests__/ConfigScreen.test.js`
-- `frontend/src/__tests__/integration.test.js`
-
-### End-to-End Tests (E2E)
-
-E2E test scaffolding is provided for comprehensive system testing.
-
-**Recommended Frameworks:**
-- **Detox** (for React Native apps)
-- **Cypress** (for web version with Expo)
-
-**Setup and usage:**
-See `frontend/e2e/README.md` for detailed E2E test setup instructions and examples.
-
-**E2E Test Scenarios:**
-- Complete user flow: launch → view rankings → adjust config → save → verify updated rankings
-- Error handling: backend unavailable, network timeouts
-- Performance: app launch time, scrolling, transitions
-- Accessibility: screen readers, keyboard navigation
-
-**Example E2E Test:**
-- `frontend/e2e/app.test.e2e.js` - Detox test scaffold with example scenarios
-
-### Running All Tests
-
-**Backend only:**
-```bash
-pytest
-```
-
-**Frontend only:**
-```bash
-cd frontend && npm test
-```
-
-**Both backend and frontend:**
-```bash
-# Terminal 1 - Backend tests
-pytest
-
-# Terminal 2 - Frontend tests
-cd frontend && npm test
-```
-
-### Continuous Integration
-
-All tests are designed to run in CI/CD pipelines:
-- Backend tests require Python 3.7+ and dependencies from `requirements.txt`
-- Frontend tests require Node.js 16+ and dependencies from `frontend/package.json`
-- No external services required (all use mocking)
-
-### Test Philosophy
-
-- **Comprehensive Coverage:** All major features have corresponding tests
-- **Mocking:** External dependencies (APIs, files) are mocked for reliability
-- **Fast Execution:** Tests run quickly to enable rapid development
-- **Clear Assertions:** Tests clearly document expected behavior
-- **Edge Cases:** Tests include error conditions and boundary cases

@@ -8,7 +8,7 @@ def main():
     print("Starting the lawyer ranking process...")
 
     # Step 1: Scrape the data
-    target_url = "https://www.justia.com/lawyers/california"
+    target_url = "https://www.justia.com/lawyers/maryland"
     scrape_lawyers(target_url)
 
     # Step 2: Rank the data
