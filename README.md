@@ -69,29 +69,79 @@ source env/bin/activate
 ## Install dependencies
 
 ```pip install -r requirements.txt
+```
 
 ## Usage
 
-Here is how to run the tool:
+### Running the Flask Backend API
 
-```python main.py
+Start the Flask API server to expose lawyer ranking endpoints:
 
+```bash
+python app.py
+```
+
+The API will be available at `http://localhost:5000` with the following endpoints:
+
+**GET /lawyers** - Get ranked lawyers based on current configuration
+```bash
+curl http://localhost:5000/lawyers
+```
+
+**GET /config** - Get current ranking configuration (weights)
+```bash
+curl http://localhost:5000/config
+```
+
+**PUT /config** - Update ranking configuration
+```bash
+curl -X PUT http://localhost:5000/config \
+  -H "Content-Type: application/json" \
+  -d '{"Chambers Rank": 2, "Years PE": 1.5, "LinkedIn Presence": 1}'
+```
+
+**GET /health** - Health check endpoint
+```bash
+curl http://localhost:5000/health
+```
+
+### Running the Frontend Application
+
+See `frontend/README.md` for detailed frontend setup and usage instructions.
+
+**Quick start:**
+```bash
+cd frontend
+npm install
+npm start
+```
+
+This will start the Expo development server. You can then:
+- Press `i` for iOS simulator
+- Press `a` for Android emulator  
+- Press `w` to run in web browser
+
+### Running the Command Line Tool
+
+You can also use the original command-line interface:
+
+```bash
+python main.py
+```
 
 By default, this runs the full workflow: scrape data, process it, compute rankings, and produce output.
 
-You can also use/runs specific modules:
+You can also run specific modules:
 
-To scrape from a single source:
+**To scrape from a single source:**
+```bash
+python scraper.py
+```
 
-```python scraper.py --source justia
-
-
-## To rank using specific criteria:
-
-```python ranker.py --weights review_score:0.5, case_volume:0.3, geography:0.2
-
-
-(Output format options, flags, etc., should be explained here.)
+**To rank using the current config:**
+```bash
+python ranker.py
+```
 
 ## Data Sources
 
